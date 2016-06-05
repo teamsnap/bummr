@@ -69,6 +69,8 @@ module Bummr
       if yes? "Are you ready to use Bummr? (y/n)"
         check
         `bundle`
+        say "Testing that build is green".blue
+        `#{TEST_COMMAND}`
 
         if outdated_gems_to_update.empty?
           say "No outdated gems to update".green
