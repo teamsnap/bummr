@@ -83,7 +83,7 @@ suite.
 
 ## Developing
 
-`rake build` to build locally
+irb:
 
 `gem install --local ~/dev/mine/bummr/pkg/bummr-X.X.X.gem` in the app you
 wish to use it with.
@@ -93,6 +93,18 @@ wish to use it with.
 I'd like to create feature tests, but because Bummr relies on command line
 manipulations which need to be doubled, I'm waiting on [this
 issue](https://github.com/bjoernalbers/aruba-doubles/issues/5)
+```
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'bummr'
+```
+
+`rake install` to install locally
+
+Make sure bummr is using the same version of ruby locally
+
+If you create a new file or module, it must be committed to git before it will
+be recognized
 
 ## Wanted
 
