@@ -5,12 +5,12 @@ module Bummr
     def bisect
       puts "Bad commits found! Bisecting...".color(:red)
 
-      system("bundle")
+      system(Bummr::Language.install_dependencies_command)
       system("git bisect start")
       system("git bisect bad")
       system("git bisect good #{BASE_BRANCH}")
 
-      Open3.popen2e("git bisect run #{TEST_COMMAND}") do |_std_in, std_out_err|
+      Open3.popen2e("git bisect run #{Bummr::Language.bisect_command}") do |_std_in, std_out_err|
         while line = std_out_err.gets
           puts line
 

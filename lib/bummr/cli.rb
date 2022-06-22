@@ -1,4 +1,3 @@
-TEST_COMMAND = ENV["BUMMR_TEST"] || "bundle exec rake"
 BASE_BRANCH = ENV["BASE_BRANCH"] || "master"
 HEADLESS = ENV["BUMMR_HEADLESS"] || false
 
@@ -26,21 +25,21 @@ module Bummr
     method_option :gem, type: :string
 
     def update
-      system("bundle install")
+      system(Bummr::Language.install_dependencies_command)
       display_info
 
       if yes? "Are you ready to use Bummr? (y/n)"
         check
         log("Bummr update initiated #{Time.now}")
 
-        outdated_gems = Bummr::Outdated.instance.outdated_gems(
+        outdated_packages = Bummr::Outdated.instance.outdated_packages(
           all_gems: options[:all], group: options[:group], gem: options[:gem]
         )
 
-        if outdated_gems.empty?
+        if outdated_packages.empty?
           puts "No outdated gems to update".color(:green)
         else
-          Bummr::Updater.new(outdated_gems).update_gems
+          Bummr::Updater.new(outdated_packages).update_gems
 
           git.rebase_interactive(BASE_BRANCH)
           test
@@ -55,10 +54,10 @@ module Bummr
       check(false)
 
       if yes? "Do you want to test the build now? (y/n)"
-        system "bundle install"
+        system(Bummr::Language.install_dependencies_command)
         puts "Testing the build!".color(:green)
 
-        if system(TEST_COMMAND) == false
+        if system(Bummr::Language.test_command) == false
           bisect
         else
           puts "Passed the build!".color(:green)
@@ -94,7 +93,7 @@ module Bummr
       puts "- Have locked any Gem version that you don't wish to update in your Gemfile"
       puts "- It is recommended that you lock your versions of `ruby` and `rails` in your `Gemfile`"
       puts "\n"
-      puts "Your test command is: " + "'#{TEST_COMMAND}'".color(:yellow)
+      puts "Your test command is: " + "'#{Bummr::Language.test_command}'".color(:yellow)
       puts "\n"
       print_received_options
     end
