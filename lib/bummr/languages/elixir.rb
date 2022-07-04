@@ -54,7 +54,7 @@ module Bummr
       private
 
       def parse_hex_from(line)
-        regex = /(?:\s+\* )?(.*)\s+(\d[\d\.]*\d)\s+(\d[\d\.]*\d)\s.*/.match(line)
+        regex = /(?:\s+\* )?(.*)\s+(\d[\d\.]*\d)\s+(\d[\d\.]*\d)\s+Update possible.*/.match(line)
 
         unless regex.nil? or regex[2] == regex[3]
           { name: regex[1], newest: regex[3], installed: regex[2] }
