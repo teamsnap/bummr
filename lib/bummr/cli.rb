@@ -1,4 +1,4 @@
-BASE_BRANCH = ENV["BASE_BRANCH"] || "master"
+BASE_BRANCH = ENV["BASE_BRANCH"] || `git symbolic-ref refs/remotes/origin/HEAD`.split('/').last || "master"
 HEADLESS = ENV["BUMMR_HEADLESS"] || false
 
 module Bummr
