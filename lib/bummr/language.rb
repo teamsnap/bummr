@@ -5,7 +5,7 @@ module Bummr
     include Singleton
 
     PASSTHROUGH_METHODS = %i(
-      bisect_command detected_language get_package_version git_files
+      bisect_command get_package_version git_files
       install_dependencies_command outdated_packages test_command update_command
     )
 
@@ -35,11 +35,15 @@ module Bummr
       case ENV['BUMMR_LANG']
       when 'hex', 'elixir'
         Bummr::Languages::Elixir.instance
+      when 'go', 'golang'
+        Bummr::Languages::Golang.instance
       when 'ruby'
         Bummr::Languages::Ruby.instance
       else
         if File.exists?('mix.exs')
           Bummr::Languages::Elixir.instance
+        elsif File.exists?('go.mod')
+          Bummr::Languages::Golang.instance
         elsif File.exists?('Gemfile') or ENV['BUMMR_LANG'].nil?
           Bummr::Languages::Ruby.instance
         else

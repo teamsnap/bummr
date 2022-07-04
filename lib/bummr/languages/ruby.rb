@@ -9,10 +9,6 @@ module Bummr
         "sh -c \"#{install_dependencies_command} && #{test_command}\""
       end
 
-      def detected_language
-        :ruby
-      end
-
       def get_package_version(name)
         `bundle list | grep " #{name} "`.split('(')[1].split(')')[0]
       end

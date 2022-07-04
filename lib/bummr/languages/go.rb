@@ -2,7 +2,7 @@ require 'singleton'
 
 module Bummr
   module Languages
-    class Elixir
+    class Golang
       include Singleton
 
       def bisect_command
@@ -10,34 +10,40 @@ module Bummr
       end
 
       def get_package_version(name)
-        `mix deps | grep "^\* #{name} "`.split(' ')[2]
+        `go list -m all | grep "^#{name} "`.split(' ').last
       end
 
       def git_files
-        %w( mix.exs mix.lock )
+        %w( go.mod go.sum )
       end
 
       def install_dependencies_command
-        "mix deps.get"
+        "go get"
       end
 
       def test_command
-        ENV["BUMMR_TEST"] || "mix test"
+        ENV["BUMMR_TEST"] || "go test ./..."
       end
 
       def update_command
-        "mix deps.update"
+        "go get -u"
       end
 
       def outdated_packages(options)
         results = []
 
-        hex_options = ""
-        hex_options << " --all" if options[:all_gems]
+        go_options = ""
+        go_options <<
+          if options[:all_gems]
+            " -m all"
+          else
+            " -m -f '{{if not .Indirect}}{{.}}{{end}}' all"
+          end
 
-        Open3.popen2("mix hex.outdated" + hex_options) do |_std_in, std_out|
+        puts "Getting list of outdated packages, this can take a while for golang..."
+        Open3.popen2("go list -u" + go_options) do |_std_in, std_out|
           while line = std_out.gets
-            if hex = parse_hex_from(line)
+            if hex = parse_godep_line(line)
               puts line
               results.push hex
             end
@@ -49,8 +55,8 @@ module Bummr
 
       private
 
-      def parse_hex_from(line)
-        regex = /(?:\s+\* )?(.*)\s+(\d[\d\.]*\d)\s+(\d[\d\.]*\d)\s+Update possible.*/.match(line)
+      def parse_godep_line(line)
+        regex = /(?:\s+\* )?([^\s]+)\s+(v\d[\d\.]*\d[-a-f0-9]*)\s+\[(v\d[\d\.]*\d[-a-f0-9]*)\]/.match(line)
 
         unless regex.nil? or regex[2] == regex[3]
           { name: regex[1], newest: regex[3], installed: regex[2] }
