@@ -35,8 +35,14 @@ module Bummr
               if RECURSIVE_BISECT
                 system("git checkout #{stop_tag}")
                 system("git tag -D #{stop_tag}")
-                system("git rebase --onto #{sha}^ #{sha}") #pluck out that commit
-                puts "Plucked out commit #{sha}".color(:red)
+                output = `git rebase --onto #{sha}^ #{sha}` #pluck out that commit
+                if $?.success?
+                  puts "Plucked out commit #{sha}".color(:red)
+                else
+                  puts "Unable to plucked out commit #{sha}".color(:red)
+                  puts output.color(:yellow)
+                  exit 1
+                end
                 system("git tag #{stop_tag}")
               else
                 Bummr::Remover.instance.remove_commit(sha)
