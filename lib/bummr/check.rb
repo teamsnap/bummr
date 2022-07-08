@@ -3,6 +3,8 @@ module Bummr
     include Singleton
     include Bummr::Prompt
 
+    attr_reader :start_tag, :stop_tag
+
     desc "check", "Run automated checks to see if bummr can be run"
     def check(fullcheck=true)
       @errors = []
@@ -12,7 +14,8 @@ module Bummr
       check_status
 
       if fullcheck == true
-        check_diff
+        #check_diff
+        tag_start
       end
 
       if @errors.any?
@@ -67,6 +70,14 @@ module Bummr
         puts message.color(:red)
         @errors.push message
       end
+    end
+
+    def tag_start
+      time = Time.now.to_i
+      @start_tag = "bummr-start-#{time}"
+      @stop_tag = "bummr-stop-#{time}"
+      system("git tag #{@start_tag}")
+      puts "Created tag #{@start_tag}".color(:green)
     end
   end
 end
