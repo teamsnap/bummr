@@ -34,7 +34,10 @@ module Bummr
             if line == "bisect run success\n"
               if RECURSIVE_BISECT
                 system("git checkout #{stop_tag}")
-                system("git tag -D #{stop_tag}")
+                #TODO: detect if the bad commit is the current commit ?
+                system("git tag -d #{stop_tag}")
+                puts "PROCEED?"
+                STDIN.gets
                 output = `git rebase --onto #{sha}^ #{sha}` #pluck out that commit
                 if $?.success?
                   puts "Plucked out commit #{sha}".color(:red)
@@ -43,6 +46,8 @@ module Bummr
                   puts output.color(:yellow)
                   exit 1
                 end
+                puts "PROCEED?"
+                STDIN.gets
                 system("git tag #{stop_tag}")
               else
                 Bummr::Remover.instance.remove_commit(sha)
